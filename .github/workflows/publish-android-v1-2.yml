@@ -4,6 +4,9 @@ on:
     paths:
       - '.github/workflows/publish-android-v1-2.yml'
   workflow_dispatch:
+  pull_request:
+    paths:
+      - '.github/workflows/publish-android-v1-2.yml'
 permissions:
   contents: write
 jobs:
@@ -12,7 +15,7 @@ jobs:
     steps:
       - name: Fetch verified binary artifact
         env:
-          SOURCE_ZIP_URL: 'https://sdmntprseasia.oaiusercontent.com/files/00000000-a8b0-8207-8e2e-d452d24effd0/raw?se=2026-10-30T23%3A42%3A11Z&sp=r&sv=2026-02-06&sr=b&scid=5b2027d1-286b-5c1c-b2f0-3c981652e2e7&skoid=fb469448-2cc9-41bd-a5a6-6e020952b47a&sktid=a48cca56-e6da-484e-a814-9c849652bcb3&skt=2026-10-30T21%3A49%3A59Z&ske=2026-10-31T21%3A49%3A59Z&sks=b&skv=2026-02-06&sig=aGaFDJglmkMU/m5MVAHhi1H4co22mf4Dx%2B7imJJ16VU%3D'
+          SOURCE_ZIP_URL: 'https://sdmntprseasia.oaiusercontent.com/files/00000000-7fe0-8207-9dd5-5396b2e46148/raw?se=2026-10-30T23%3A44%3A46Z&sp=r&sv=2026-02-06&sr=b&scid=66192f96-108d-5cd6-a95f-fdd065502500&skoid=fb469448-2cc9-41bd-a5a6-6e020952b47a&sktid=a48cca56-e6da-484e-a814-9c849652bcb3&skt=2026-10-30T22%3A00%3A02Z&ske=2026-10-31T22%3A00%3A02Z&sks=b&skv=2026-02-06&sig=O3OLpFy3eYGdtRfzcKtSegzvPSGwwSTZ5TOO8sgNOjQ%3D'
         run: |
           set -euo pipefail
           curl --fail --location --show-error --silent --retry 3 --connect-timeout 20 -o artifact.zip "$SOURCE_ZIP_URL"
