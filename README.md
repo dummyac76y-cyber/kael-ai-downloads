@@ -2,27 +2,29 @@
 
 ### Think smarter. Create freely.
 
-**Kael AI** is an independent AI chatbot project built with a simple vision: make intelligent, useful conversations feel more natural and accessible.
+**Kael AI** is an independent AI chatbot project designed to help people learn, write, create, and explore ideas through natural conversations.
 
-Designed with students, creators, and curious minds in mind, Kael AI is an evolving project focused on a clean experience, practical assistance, and room to explore new ideas.
+Built with a focus on clarity, a modern interface, and flexibility, Kael AI is growing into a capable AI companion for students, creators, and developers.
+
+## Get Kael AI for Windows
+
+**[Download Kael AI Chat v2.0.0](https://github.com/dummyac76y-cyber/kael-ai-downloads/releases/download/v2.0.0/Kael-AI-Chat-2.0.0-Windows-x64.exe)**
+
+Windows 10/11 · 64-bit · Early preview
+
+The desktop experience includes a dedicated chat interface, conversation history, and access to free-tier cloud AI models through your own OpenRouter API key. Optional internet lookup is available: Wikipedia works without an extra key, while broader Brave Search requires a separate key.
+
+Free-tier model usage has limits. The installer is unsigned and may trigger a Windows security warning.
+
+[View release notes and checksums](https://github.com/dummyac76y-cyber/kael-ai-downloads/releases/tag/v2.0.0)
 
 ## The vision
 
-- **Ask & explore** — Learn, brainstorm, and work through questions.
-- **Create & write** — Turn rough ideas into drafts and creative possibilities.
-- **Code & solve** — Explore programming concepts and problem-solving.
-- **Stay focused** — Keep the experience simple, responsive, and approachable.
+- **Learn** — Explore topics and understand challenging ideas.
+- **Create** — Draft, write, and brainstorm.
+- **Build** — Plan projects and solve problems.
+- **Stay focused** — A comfortable, distraction-free chat experience.
 
-These are project goals; features may change as development continues.
-
-## Windows early preview
-
-**[Get Kael AI for Windows](https://github.com/dummyac76y-cyber/kael-ai-downloads/releases/download/v1.1.12/KaelAI-Setup.exe)**
-
-Windows 10/11 (64-bit). This is an **early development preview**, not the complete chatbot experience. The link above downloads the installer directly without requiring a GitHub account.
-
-## About
-
-Kael AI is an independently developed project that is actively being improved.
+Kael AI is independently developed and actively evolving.
 
 *Built with curiosity. Driven by possibilities.*
