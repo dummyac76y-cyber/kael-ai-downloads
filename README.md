@@ -17,9 +17,9 @@ These are project goals; features may change as development continues.
 
 ## Windows early preview
 
-**[Get Kael AI for Windows](https://github.com/dummyac76y-cyber/kael-ai-downloads/releases/tag/v1.1.12)**
+**[Get Kael AI for Windows](https://github.com/dummyac76y-cyber/kael-ai-downloads/releases/download/v1.1.12/KaelAI-Setup.exe)**
 
-Windows 10/11 (64-bit). This is an **early development preview**, not the complete chatbot experience. See the release page for the available download and notes.
+Windows 10/11 (64-bit). This is an **early development preview**, not the complete chatbot experience. The link above downloads the installer directly without requiring a GitHub account.
 
 ## About
 
