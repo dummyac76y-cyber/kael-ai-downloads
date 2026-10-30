@@ -28,3 +28,13 @@ The optional connection controls are tucked under Settings > Advanced. A confirm
 Kael AI is independently developed and actively evolving.
 
 *Built with curiosity. Driven by possibilities.*
+
+## Kael AI Remote for Android — v1.2.0
+
+**[Download verified Kael AI Remote APK](https://github.com/dummyac76y-cyber/kael-ai-downloads/releases/download/android-v1.2.0/Kael-AI-Remote-v1.2.0.apk)**
+
+This 30 MB Android 7+ APK includes the unmodified RustDesk 1.5.0 ARM64 installer. Android requires approval for its separate installation. A configured Windows RustDesk host is also required. This is an early preview, debug-signed and not yet physical-phone verified.
+
+APK SHA-256: `514d88dfe10f3028829612e81204e3b1c20a0b425d6599107e3564ef7f6e3719`.
+
+[Release notes and licenses](https://github.com/dummyac76y-cyber/kael-ai-downloads/releases/tag/android-v1.2.0).
