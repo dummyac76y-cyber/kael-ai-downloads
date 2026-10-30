@@ -1,0 +1,24 @@
+name: Publish verified Kael AI installer
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - .github/workflows/publish-verified-installer.yml
+permissions:
+  contents: write
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Download checked installer
+        shell: bash
+        run: |
+          curl --fail --location --retry 3 --connect-timeout 30 --max-time 360 --output KaelAI-Setup.exe 'https://backend.composio.dev/api/v3/sl/r7k1kaLqiL'
+          echo 'c0564f6b0f030ab7599cd8dc82e098e3b91c8c8724747c3858c4119b37a52331  KaelAI-Setup.exe' | sha256sum --check
+          test "$(stat -c%s KaelAI-Setup.exe)" = "51155128"
+      - name: Attach to public GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release upload v1.1.12 KaelAI-Setup.exe --repo "${{ github.repository }}" --clobber
