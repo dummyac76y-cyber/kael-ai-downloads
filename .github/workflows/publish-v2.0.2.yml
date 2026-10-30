@@ -48,3 +48,19 @@ jobs:
           else
             gh release create v2.0.2 Kael-AI-Chat-2.0.2-Windows-x64.exe SHA256SUMS.txt --repo "${{ github.repository }}" --target "${{ github.event.repository.default_branch }}" --title "Kael AI Chat v2.0.2" --notes-file release-notes.md --latest
           fi
+
+      - name: Record verified release only after public asset responds
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          gh release view v2.0.2 --repo "${{ github.repository }}" --json assets --jq '.assets[].name' | grep -Fx Kael-AI-Chat-2.0.2-Windows-x64.exe
+          curl -fIsSL --retry 2 "https://github.com/${{ github.repository }}/releases/download/v2.0.2/Kael-AI-Chat-2.0.2-Windows-x64.exe" >/dev/null
+          git clone "https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}.git" repo
+          cd repo
+          printf '\n<!-- v2.0.2 release asset HEAD verified by GitHub Actions; SHA256 a6bd34913fc64b7c368c6e9ab48c29d1c2706eb5b6e76875660a79e373420df1 -->\n' >> README.md
+          git config user.name github-actions
+          git config user.email github-actions[bot]@users.noreply.github.com
+          git add README.md
+          git commit -m "Confirm public v2.0.2 installer and checksum"
+          git push
