@@ -1,0 +1,49 @@
+name: Publish Kael AI Remote Android v1.1.0
+on:
+  push:
+    paths:
+      - '.github/workflows/publish-android-v1-1.yml'
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  release-android:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download and verify private CI Android artifact
+        env:
+          ARTIFACT_URL: 'https://sdmntprseasia.oaiusercontent.com/files/00000000-dff0-8207-8622-bb541d47e3b0/raw?se=2026-10-30T23%3A30%3A05Z&sp=r&sv=2026-02-06&sr=b&scid=ffc2bfdf-2a25-5b2e-822f-81501464740b&skoid=fb469448-2cc9-41bd-a5a6-6e020952b47a&sktid=a48cca56-e6da-484e-a814-9c849652bcb3&skt=2026-10-30T21%3A50%3A08Z&ske=2026-10-31T21%3A50%3A08Z&sks=b&skv=2026-02-06&sig=lUMdh9fsGJN5lIjQKD2V2jovJ6iDKZzsJBpjz3dHcqE%3D'
+        run: |
+          set -euo pipefail
+          curl --retry 3 -fLSs --connect-timeout 15 -o artifact.zip "$ARTIFACT_URL"
+          unzip -p artifact.zip app-debug.apk > Kael-AI-Remote-v1.1.0.apk
+          echo 'cb9428597014fe9c31be0ab432ab8a8e55dfd2c208b86fe3b5df5a630b4610a8  Kael-AI-Remote-v1.1.0.apk' | sha256sum -c -
+          sha256sum Kael-AI-Remote-v1.1.0.apk > SHA256SUMS.txt
+          cat > release-notes.md <<'NOTES'
+          # Kael AI Remote v1.1.0 (Android)
+          
+          Android companion for checking Desktop Commander device status and connecting to the official RustDesk remote desktop viewer.
+          
+          * Device Status tab with refreshable authenticated Desktop Commander dashboard
+          * Remote Desktop tab for entering a Windows RustDesk ID and opening RustDesk for mouse, keyboard, and screen control
+          * The Windows device must be powered on and running a configured RustDesk host
+          * RustDesk for Android is a separate app, available at https://github.com/rustdesk/rustdesk/releases/latest
+          * The connection password is entered only in RustDesk, never in Kael AI
+          * Debug-signed preview APK; not yet validated on user's physical device
+          
+          Use the SHA256SUMS.txt to verify the download.
+          NOTES
+      - name: Publish release and APK
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          if gh release view android-v1.1.0 --repo "${{ github.repository }}" >/dev/null 2>&1; then
+            gh release upload android-v1.1.0 Kael-AI-Remote-v1.1.0.apk SHA256SUMS.txt --clobber --repo "${{ github.repository }}"
+            gh release edit android-v1.1.0 --repo "${{ github.repository }}" --title "Kael AI Remote Android v1.1.0" --notes-file release-notes.md
+          else
+            gh release create android-v1.1.0 Kael-AI-Remote-v1.1.0.apk SHA256SUMS.txt --repo "${{ github.repository }}" --target "${{ github.event.repository.default_branch }}" --title "Kael AI Remote Android v1.1.0" --notes-file release-notes.md --latest=false
+          fi
+      - name: Verify public download
+        run: |
+          curl -fLIsS --retry 3 "https://github.com/${{ github.repository }}/releases/download/android-v1.1.0/Kael-AI-Remote-v1.1.0.apk" >/dev/null
