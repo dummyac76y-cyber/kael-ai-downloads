@@ -1,0 +1,48 @@
+name: Verify and announce Android v1.2.0 release
+on:
+  push:
+    paths:
+      - '.github/workflows/verify-android-v1-2.yml'
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  verify-and-announce:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Confirm GitHub release has the verified APK
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          for n in {1..18}; do
+            if gh release view android-v1.2.0 --repo "${{ github.repository }}" --json assets --jq '.assets[].name' 2>/dev/null | grep -Fx Kael-AI-Remote-v1.2.0.apk; then
+              break
+            fi
+            sleep 10
+          done
+          gh release view android-v1.2.0 --repo "${{ github.repository }}" --json assets --jq '.assets[].name' | grep -Fx Kael-AI-Remote-v1.2.0.apk
+          gh release view android-v1.2.0 --repo "${{ github.repository }}" --json assets --jq '.assets[].name' | grep -Fx SHA256SUMS.txt
+          curl --fail --location --silent --show-error --retry 2 -o /tmp/public-kael-apk "https://github.com/${{ github.repository }}/releases/download/android-v1.2.0/Kael-AI-Remote-v1.2.0.apk"
+          echo '514d88dfe10f3028829612e81204e3b1c20a0b425d6599107e3564ef7f6e3719  /tmp/public-kael-apk' | sha256sum --check -
+      - name: Link tested APK from public README
+        run: |
+          set -euo pipefail
+          cat >> README.md <<'RELEASE'
+
+          ## Kael AI Remote for Android — v1.2.0
+
+          **[Download verified Kael AI Remote APK](https://github.com/dummyac76y-cyber/kael-ai-downloads/releases/download/android-v1.2.0/Kael-AI-Remote-v1.2.0.apk)**
+
+          This 30 MB Android 7+ APK includes the unmodified RustDesk 1.5.0 ARM64 installer. Android requires approval for its separate installation. A configured Windows RustDesk host is also required. This is an early preview, debug-signed and not yet physical-phone verified.
+
+          APK SHA-256: `514d88dfe10f3028829612e81204e3b1c20a0b425d6599107e3564ef7f6e3719`.
+
+          [Release notes and licenses](https://github.com/dummyac76y-cyber/kael-ai-downloads/releases/tag/android-v1.2.0).
+          RELEASE
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add README.md
+          git commit -m 'docs: announce checksum-verified public Kael AI Remote v1.2.0 APK'
+          git push origin HEAD:main
