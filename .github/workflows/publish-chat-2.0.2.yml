@@ -1,0 +1,58 @@
+name: Publish verified Kael AI Chat 2.0.2
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/publish-chat-2.0.2.yml'
+permissions:
+  contents: write
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Fetch verified Windows setup
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl --fail --location --retry 4 --retry-all-errors --connect-timeout 30 --max-time 650 \
+            --output Kael-AI-Chat-2.0.2-Windows-x64.exe \
+            'https://backend.composio.dev/api/v3/sl/oXS1NkqbW5'
+          echo 'a6bd34913fc64b7c368c6e9ab48c29d1c2706eb5b6e76875660a79e373420df1  Kael-AI-Chat-2.0.2-Windows-x64.exe' | sha256sum --check
+          test "$(stat -c%s Kael-AI-Chat-2.0.2-Windows-x64.exe)" -eq 99430837
+          echo 'a6bd34913fc64b7c368c6e9ab48c29d1c2706eb5b6e76875660a79e373420df1 *Kael-AI-Chat-2.0.2-Windows-x64.exe' > SHA256SUMS.txt
+      - name: Create preview release and upload installer
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          cat > release-notes.md <<'EOF'
+          ## Kael AI Chat 2.0.2 — Windows desktop preview
+
+          **This is the chat application**, not the old background-only launcher.
+          Download **Kael-AI-Chat-2.0.2-Windows-x64.exe** from the Assets section.
+
+          - ChatGPT-style interface with conversation history, message composer and free-tier model selector
+          - OpenRouter cloud AI model options (requires your own free OpenRouter API key)
+          - Optional Wikipedia lookup, plus broader search with an optional Brave Search API key
+          - Branded Windows app and installer icon
+          - Startup loading screen, retry controls and recovery if the interface fails to load
+          - Optional background connection settings, separate from the chat application
+
+          **System:** Windows 10/11, 64-bit. **Preview:** The installer is unsigned, and cloud AI requests have not been tested against the user's own OpenRouter account.
+
+          **SHA-256:** `a6bd34913fc64b7c368c6e9ab48c29d1c2706eb5b6e76875660a79e373420df1`
+
+          The private development source remains private. Only compiled installers are published in this repository.
+          EOF
+          if ! gh release view v2.0.2 --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            gh release create v2.0.2 --repo "$GITHUB_REPOSITORY" \
+              --target "$GITHUB_SHA" \
+              --title 'Kael AI Chat v2.0.2 — Windows' \
+              --notes-file release-notes.md --prerelease
+          fi
+          gh release upload v2.0.2 \
+            Kael-AI-Chat-2.0.2-Windows-x64.exe SHA256SUMS.txt \
+            --repo "$GITHUB_REPOSITORY" --clobber
+          gh release view v2.0.2 --repo "$GITHUB_REPOSITORY" --json assets,isDraft,url
