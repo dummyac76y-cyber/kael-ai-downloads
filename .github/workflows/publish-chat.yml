@@ -1,5 +1,8 @@
 name: Publish Kael AI Chat installer
 on:
+  push:
+    branches: [main]
+    paths: [transfer.json]
   workflow_dispatch:
     inputs:
       artifact_url:
@@ -21,9 +24,31 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
+      - uses: actions/checkout@v4
+      - name: Resolve verified artifact source
+        env:
+          DISPATCH_URL: ${{ inputs.artifact_url }}
+          DISPATCH_HASH: ${{ inputs.sha256 }}
+          DISPATCH_SIZE: ${{ inputs.size }}
+        run: |
+          if test -f transfer.json; then
+            url="$(jq -r '.url' transfer.json)"
+            hash="$(jq -r '.sha256' transfer.json)"
+            size="$(jq -r '.size' transfer.json)"
+          else
+            url="$DISPATCH_URL"
+            hash="$DISPATCH_HASH"
+            size="$DISPATCH_SIZE"
+          fi
+          test -n "$url"
+          test "$hash" = "34bd818bf10a00ea3253afdfbbfc2ab3ca74d6f3b33469855ba93c8afea58e2e"
+          test "$size" = "99429086"
+          echo "FILE_URL=$url" >> "$GITHUB_ENV"
+          echo "FILE_HASH=$hash" >> "$GITHUB_ENV"
+          echo "FILE_SIZE=$size" >> "$GITHUB_ENV"
       - name: Download compiled installer
         env:
-          INPUT_URL: ${{ inputs.artifact_url }}
+          INPUT_URL: ${{ env.FILE_URL }}
         run: |
           curl --fail --location --retry 3 --connect-timeout 25 --max-time 450 --output artifact.zip "$INPUT_URL"
           unzip -Z1 artifact.zip
@@ -32,8 +57,8 @@ jobs:
           test -f extracted/Kael-AI-Chat-2.0.0-Windows-x64.exe
       - name: Verify installer
         env:
-          EXPECTED_HASH: ${{ inputs.sha256 }}
-          EXPECTED_SIZE: ${{ inputs.size }}
+          EXPECTED_HASH: ${{ env.FILE_HASH }}
+          EXPECTED_SIZE: ${{ env.FILE_SIZE }}
         run: |
           set -eu
           binary="extracted/Kael-AI-Chat-2.0.0-Windows-x64.exe"
