@@ -1,0 +1,61 @@
+name: Publish Kael AI v2.2.1 full Windows setup
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/publish-v2.2.1-clean-install.yml'
+permissions:
+  contents: write
+jobs:
+  publish:
+    runs-on: windows-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download and verify complete Windows installer artifact
+        shell: pwsh
+        run: |
+          $ErrorActionPreference='Stop'
+          $source='https://sdmntprindiasocentral.oaiusercontent.com/files/00000000-9f74-8211-b125-435b8f44a9f8/raw?se=2026-11-02T15%3A16%3A40Z&sp=r&sv=2026-02-06&sr=b&scid=e63e4635-8a0f-549c-ba79-23400b8ff7d5&skoid=fb469448-2cc9-41bd-a5a6-6e020952b47a&sktid=a48cca56-e6da-484e-a814-9c849652bcb3&skt=2026-11-02T03%3A03%3A40Z&ske=2026-11-03T03%3A03%3A40Z&sks=b&skv=2026-02-06&sig=9XDpcf7F2O8Trym5i/MP1kJRFSyIjndXLmk8n4wY8Vo%3D'
+          $outer=Join-Path $env:RUNNER_TEMP 'kael-v2.2.1-full-artifact.zip'
+          Invoke-WebRequest -Uri $source -OutFile $outer -MaximumRedirection 5
+          if((Get-FileHash $outer -Algorithm SHA256).Hash.ToLowerInvariant() -ne '4bfdd034fad532fdf13d0fd67c1ed81e8984b76cd7a6c5941e5014ab6066f63b'){
+            throw 'Verified CI artifact checksum mismatch'
+          }
+          $dst=Join-Path $env:RUNNER_TEMP 'kael-full-release'
+          New-Item -ItemType Directory -Force $dst | Out-Null
+          Expand-Archive -LiteralPath $outer -DestinationPath $dst
+          $exe=Join-Path $dst 'Kael-AI-Chat-2.2.1-Windows-x64.exe'
+          $manifest=Join-Path $dst 'FULL-INSTALLER-SHA256SUMS.txt'
+          if(-not (Test-Path $exe) -or -not (Test-Path $manifest)){throw 'Missing setup EXE or checksum'}
+          $expected=(Get-Content $manifest -Raw).Trim().Split(' ')[0].ToLowerInvariant()
+          $actual=(Get-FileHash $exe -Algorithm SHA256).Hash.ToLowerInvariant()
+          if($actual -ne $expected){throw 'Setup EXE checksum mismatch'}
+          if((Get-Item $exe).Length -lt 20000000){throw 'Setup EXE is incomplete'}
+          "binary=$exe" | Out-File -FilePath $env:GITHUB_ENV -Append
+          "manifest=$manifest" | Out-File -FilePath $env:GITHUB_ENV -Append
+          "instructions=$(Join-Path $dst 'INSTALL-NEW-PC-ONLY.txt')" | Out-File -FilePath $env:GITHUB_ENV -Append
+      - name: Publish pre-release for fresh Windows installations
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          $ErrorActionPreference='Stop'
+          $tag='v2.2.1-new-pc'
+          $notes=@'
+          ## Kael AI v2.2.1 — Windows 10/11 x64 (new computers only)
+          
+          Full Windows installer, including the Kael AI desktop application, bundled Node.js runtime, and packaged Desktop Commander resources.
+          
+          **Not suitable for in-place upgrades over Kael AI v2.1.0/v2.2.0.** Those upgrade tests failed. Use only for a fresh computer.
+          
+          After installation, launch Kael AI and enter your own OpenRouter API key. Remote Desktop Commander connections require separate authorization and device pairing on the new computer. The installer does not automatically give access to the computer.
+          
+          This developer build is unsigned and is a prerelease. Verify the checksum file. Real-device API-key response testing is still separate from the passing clean-install CI.
+          '@
+          $notesFile=Join-Path $env:RUNNER_TEMP 'release-notes.txt'
+          Set-Content -Path $notesFile -Value $notes -Encoding utf8
+          gh release create $tag --repo "${{ github.repository }}" --title 'Kael AI v2.2.1 — Full Windows Setup (new PC)' --prerelease --latest=false --notes-file $notesFile "$env:binary" "$env:manifest" "$env:instructions"
+          if($LASTEXITCODE -ne 0){throw 'Release publication failed'}
+          gh release view $tag --repo "${{ github.repository }}" --json tagName,assets,url
+          if($LASTEXITCODE -ne 0){throw 'Release asset verification failed'}
