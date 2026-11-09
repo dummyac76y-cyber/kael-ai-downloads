@@ -1,0 +1,49 @@
+name: Build StudyAtlas Android APK
+
+on:
+  pull_request:
+    paths:
+      - 'studyatlas-android/**'
+      - '.github/workflows/build-studyatlas-android.yml'
+  push:
+    branches:
+      - 'build/studyatlas-android-apk'
+    paths:
+      - 'studyatlas-android/**'
+      - '.github/workflows/build-studyatlas-android.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: android-actions/setup-android@v3
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.9'
+      - name: Install Android platform
+        run: |
+          yes | sdkmanager --licenses > /dev/null || true
+          sdkmanager "platforms;android-35" "build-tools;35.0.0"
+      - name: Build debug-signed APK
+        run: gradle -p studyatlas-android --no-daemon :app:assembleDebug
+      - name: Verify APK signature and manifest
+        run: |
+          APK="studyatlas-android/app/build/outputs/apk/debug/app-debug.apk"
+          test -s "$APK"
+          "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --verbose "$APK"
+          "$ANDROID_HOME/build-tools/35.0.0/aapt" dump badging "$APK" | grep "package: name='ph.sti.studyatlas'"
+          cp "$APK" StudyAtlas-Android-v1.0.0.apk
+      - uses: actions/upload-artifact@v4
+        with:
+          name: StudyAtlas-Android-APK
+          path: StudyAtlas-Android-v1.0.0.apk
+          if-no-files-found: error
+          retention-days: 30
