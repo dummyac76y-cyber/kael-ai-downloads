@@ -1,4 +1,4 @@
-# StudyAtlas Android wrapper — Modules edition
+# StudyAtlas Android wrapper — Reader edition
 
 This is an Android WebView wrapper around the deployed StudyAtlas web app:
 https://studyatlas-gq3inc.v2.appdeploy.ai/
@@ -12,3 +12,10 @@ https://studyatlas-gq3inc.v2.appdeploy.ai/
 - Signing identity should be stabilized before distributing upgrades to preserve existing installs without uninstall/reinstall.
 
 Build: `gradle :app:assembleDebug`
+
+## Version 1.2.0
+- Fixed nested Google Drive PDF preview navigation so the WebView does not automatically launch the system browser for iframe requests.
+- External main-page Google Drive links intentionally open in the browser for sign-in / fallback.
+- Includes JUnit regression tests for subframe and main-frame navigation.
+- A distinct package ID `ph.sti.studyatlas.reader` protects existing v1.1 installs and local study data from debug-signing incompatibilities. Existing data is not migrated automatically.
+- App content is loaded from the live StudyAtlas URL and requires internet; private Drive embeds may still require browser login or fallback.
