@@ -46,7 +46,8 @@ public final class MainActivity extends Activity {
             @Override
             public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
                 Uri uri = request.getUrl();
-                if ("https".equalsIgnoreCase(uri.getScheme()) && APP_HOST.equalsIgnoreCase(uri.getHost())) {
+                if (!NavigationPolicy.shouldOverride(
+                        request.isForMainFrame(), uri.getScheme(), uri.getHost(), APP_HOST)) {
                     return false;
                 }
                 String scheme = uri.getScheme();
