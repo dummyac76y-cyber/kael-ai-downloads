@@ -7,11 +7,11 @@ android {
     compileSdk 35
 
     defaultConfig {
-        applicationId 'ph.sti.studyatlas'
+        applicationId 'ph.sti.studyatlas.modules'
         minSdk 24
         targetSdk 34
         versionCode 1
-        versionName '1.0.0'
+        versionName '1.1.0'
     }
 
     compileOptions {
