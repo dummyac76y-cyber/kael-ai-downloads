@@ -4,7 +4,9 @@
     <application
         android:allowBackup="false"
         android:usesCleartextTraffic="false"
-        android:label="StudyAtlas"
+        android:label="StudyAtlas Modules"
+        android:icon="@mipmap/ic_launcher"
+        android:roundIcon="@mipmap/ic_launcher"
         android:theme="@android:style/Theme.Material.Light.NoActionBar"
         android:supportsRtl="true">
         <activity
