@@ -33,20 +33,20 @@ jobs:
           yes | sdkmanager --licenses > /dev/null || true
           sdkmanager "platforms;android-35" "build-tools;35.0.0"
       - name: Build debug-signed APK
-        run: gradle -p studyatlas-android --no-daemon :app:assembleDebug
+        run: gradle -p studyatlas-android --no-daemon :app:testDebugUnitTest :app:assembleDebug
       - name: Verify APK signature and manifest
         run: |
           APK="studyatlas-android/app/build/outputs/apk/debug/app-debug.apk"
           test -s "$APK"
           "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --verbose "$APK"
           "$ANDROID_HOME/build-tools/35.0.0/aapt" dump badging "$APK" > /tmp/studyatlas-badging.txt
-          grep -q "package: name='ph.sti.studyatlas.modules'" /tmp/studyatlas-badging.txt
+          grep -q "package: name='ph.sti.studyatlas.reader'" /tmp/studyatlas-badging.txt
           "$ANDROID_HOME/build-tools/35.0.0/aapt" dump resources "$APK" > /tmp/studyatlas-resources.txt
           grep -q 'mipmap/ic_launcher' /tmp/studyatlas-resources.txt
-          cp "$APK" StudyAtlas-Modules-v1.1.0.apk
+          cp "$APK" StudyAtlas-Reader-v1.2.0.apk
       - uses: actions/upload-artifact@v4
         with:
-          name: StudyAtlas-Modules-APK
-          path: StudyAtlas-Modules-v1.1.0.apk
+          name: StudyAtlas-Reader-APK
+          path: StudyAtlas-Reader-v1.2.0.apk
           if-no-files-found: error
           retention-days: 30
